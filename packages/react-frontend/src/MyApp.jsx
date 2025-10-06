@@ -6,38 +6,75 @@ function MyApp() {
   const [characters, setCharacters] = useState([
   ]);
 
-  function updateList(person) {
-    setCharacters([...characters, person]);
-  }
-
-  function removeOneCharacter(index) {
-      const updated = characters.filter((character, i) => {
-        return i !== index;
+function updateList(person) { 
+  console.log(person);
+    postUser(person)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(response);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data);
+        setCharacters([...characters, data])
+      })
+      .catch((error) => {
+        console.log(error);
       });
-      setCharacters(updated);
-  }
+}
 
-  function fetchUsers() {
-      const promise = fetch("http://localhost:8000/users");
-      return promise;
-  }
+function deleteUser(id) {
+  return fetch("http://localhost:8000/users", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+}
 
-  useEffect(() => {
-    fetchUsers()
-      .then((res) => res.json())
-      .then((json) => setCharacters(json["users_list"]))
-      .catch((error) => { console.log(error); });
-  }, [] );
+function removeOneCharacter(index) {
+  const id = characters[index].id;
+  deleteUser(id)
+    .then(res => {
+      if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
+      setCharacters(prev => prev.filter((_, i) => i !== index));
+    })
+    .catch(console.error);
+}
 
-  return (
-    <div className="container">
-      <Table
-        characterData={characters}
-        removeCharacter={removeOneCharacter}
-      />
-      <Form handleSubmit={updateList} />
-    </div>
-  );
+function fetchUsers() {
+    const promise = fetch("http://localhost:8000/users");
+    return promise;
+}
+
+useEffect(() => {
+  fetchUsers()
+    .then((res) => res.json())
+    .then((json) => setCharacters(json["users_list"]))
+    .catch((error) => { console.log(error); });
+}, [] );
+
+function postUser(person) {
+  const promise = fetch("http://localhost:8000/users", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(person),
+  });
+
+  return promise;
+}
+
+return (
+  <div className="container">
+    <Table
+      characterData={characters}
+      removeCharacter={removeOneCharacter}
+    />
+    <Form handleSubmit={updateList} />
+  </div>
+);
 }
 
 export default MyApp;

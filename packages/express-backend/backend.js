@@ -37,6 +37,7 @@ const users = {
 app.use(express.json());
 app.use(cors());
 
+
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
@@ -76,10 +77,44 @@ const addUser = (user) => {
   return user;
 };
 
+const idNum = () => {
+  const alpha = "abcdefghijklmnopqrstuvwxyz";
+  let id = "";
+  for (let i = 0; i < 3; i++) {
+    id += alpha.charAt(Math.floor(Math.random() * alpha.length));
+  }
+  for (let i = 0; i < 3; i++) {
+    let num = Math.floor(Math.random() * 10);
+    id += num.toString();
+  }
+  return id;
+};
+
+app.delete("/users", (req, res) => {
+  const { id } = req.body;
+  console.log(id);
+  const index = users.users_list.findIndex(u => u.id === id);
+
+  if (index === -1) {
+    return res.status(404).send("Resource not found");
+  }
+
+  users.users_list.splice(index, 1);
+  return res.status(204).send();
+});
+
 app.post("/users", (req, res) => {
   const userToAdd = req.body;
-  addUser(userToAdd);
-  res.send();
+  let id = idNum();
+  while (findUserById(id) !== undefined) {
+    id = idNum();
+  }
+  userToAdd.id = id;
+  let user = addUser(userToAdd);
+  if (user === undefined) {
+    res.status(400).send("Failed to post")
+  }
+  res.status(201).send(JSON.stringify(userToAdd));
 });
 
 app.listen(port, () => {
