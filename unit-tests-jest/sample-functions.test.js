@@ -43,3 +43,15 @@ test('Testing contains number last char -- success', () => {
     const result = myFunctions.containsNumbers("abca1");
     expect(result).toBe(target);
 });
+
+test('Testing contains number with spaces -- success', () => {
+    const target = false;
+    const result = myFunctions.containsNumbers("abc def");
+    expect(result).toBe(target);
+});
+
+test('Testing contains number no chars -- success', () => {
+    const target = false;
+    const result = myFunctions.containsNumbers("");
+    expect(result).toBe(target);
+});
