@@ -25,15 +25,12 @@ function updateList(person) {
 }
 
 function deleteUser(id) {
-  return fetch("http://localhost:8000/users", {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id }),
-  });
+  return fetch(`http://localhost:8000/users/${id}`, {method: "DELETE",});
 }
 
+
 function removeOneCharacter(index) {
-  const id = characters[index].id;
+  const id = characters[index]._id;  
   deleteUser(id)
     .then(res => {
       if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
@@ -50,7 +47,7 @@ function fetchUsers() {
 useEffect(() => {
   fetchUsers()
     .then((res) => res.json())
-    .then((json) => setCharacters(json["users_list"]))
+    .then((json) => setCharacters(json))
     .catch((error) => { console.log(error); });
 }, [] );
 
